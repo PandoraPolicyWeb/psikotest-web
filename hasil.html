@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Psikotest — Hasil Anda</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #0D1B2A; --navy-mid: #1A2E44;
+    --teal: #00B4D8; --teal-light: #90E0EF;
+    --gold: #F4A261; --white: #F8FAFC; --gray: #94A3B8;
+    --success: #4ECDC4; --error: #FF6B6B; --purple: #C084FC;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--navy); min-height: 100vh; color: var(--white); overflow-x: hidden; }
+  
+  .bg-layer {
+    position: fixed; inset: 0; z-index: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(0,180,216,0.1) 0%, transparent 60%), var(--navy);
+  }
+
+  .confetti-container { position: fixed; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+  .confetti {
+    position: absolute; width: 10px; height: 10px; border-radius: 2px;
+    animation: confetti-fall linear infinite;
+  }
+  @keyframes confetti-fall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  .page { position: relative; z-index: 10; max-width: 720px; margin: 0 auto; padding: 60px 24px 80px; }
+
+  /* HERO RESULT */
+  .result-hero {
+    text-align: center;
+    padding: 60px 40px;
+    background: rgba(26,46,68,0.5);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(0,180,216,0.15);
+    border-radius: 28px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+    animation: hero-in 0.8s cubic-bezier(0.16,1,0.3,1) both;
+  }
+  @keyframes hero-in { from { opacity:0; transform:translateY(30px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
+
+  .result-hero::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--teal), var(--teal-light), var(--gold));
+  }
+
+  .result-badge {
+    display: inline-block;
+    font-size: 72px;
+    margin-bottom: 20px;
+    animation: badge-bounce 0.6s cubic-bezier(0.36,0.07,0.19,0.97) 0.5s both;
+  }
+  @keyframes badge-bounce {
+    0% { transform: scale(0); }
+    60% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+
+  .result-name {
+    font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--teal); margin-bottom: 8px;
+  }
+
+  .result-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px; color: var(--white);
+    margin-bottom: 4px; line-height: 1.2;
+  }
+
+  .result-subtitle {
+    font-size: 15px; color: var(--gray); margin-bottom: 32px;
+  }
+
+  /* BIG SCORE */
+  .big-score-ring {
+    position: relative;
+    width: 160px; height: 160px;
+    margin: 0 auto 32px;
+  }
+
+  .ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 10; }
+  .ring-fill { fill: none; stroke-width: 10; stroke-linecap: round; stroke-dasharray: 440; stroke-dashoffset: 440; transition: stroke-dashoffset 1.5s cubic-bezier(0.16,1,0.3,1) 0.8s; }
+
+  .score-inside {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .score-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 40px; font-weight: 700;
+    line-height: 1;
+  }
+  .score-pct { font-size: 13px; color: var(--gray); margin-top: 2px; }
+
+  .result-kategori {
+    display: inline-block;
+    font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    padding: 8px 20px;
+    border-radius: 100px;
+    margin-bottom: 16px;
+  }
+  .kategori-sangat-baik { background: rgba(78,205,196,0.15); color: var(--success); border: 1px solid rgba(78,205,196,0.3); }
+  .kategori-baik { background: rgba(0,180,216,0.15); color: var(--teal); border: 1px solid rgba(0,180,216,0.3); }
+  .kategori-cukup { background: rgba(244,162,97,0.15); color: var(--gold); border: 1px solid rgba(244,162,97,0.3); }
+  .kategori-kurang { background: rgba(255,107,107,0.15); color: var(--error); border: 1px solid rgba(255,107,107,0.3); }
+
+  .lulus-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14px; font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 100px;
+  }
+  .lulus-badge.lulus { background: rgba(78,205,196,0.12); color: var(--success); border: 1px solid rgba(78,205,196,0.25); }
+  .lulus-badge.tidak { background: rgba(255,107,107,0.12); color: var(--error); border: 1px solid rgba(255,107,107,0.25); }
+
+  /* SCORE BREAKDOWN */
+  .section { margin-bottom: 24px; animation: fade-up 0.6s ease backwards; }
+  .section:nth-child(2) { animation-delay: 0.1s; }
+  .section:nth-child(3) { animation-delay: 0.2s; }
+  @keyframes fade-up { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+  .section-title {
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--gray); margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .card-section {
+    background: rgba(26,46,68,0.5);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 20px;
+    padding: 28px;
+  }
+
+  /* BAR CHART */
+  .bar-item { margin-bottom: 20px; }
+  .bar-item:last-child { margin-bottom: 0; }
+  .bar-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .bar-label { font-size: 14px; color: var(--white); display: flex; align-items: center; gap: 8px; }
+  .bar-label-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .bar-score { font-size: 14px; font-weight: 600; }
+  .bar-track { height: 8px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 100px; width: 0%; transition: width 1.2s cubic-bezier(0.16,1,0.3,1); }
+
+  /* REKOMENDASI */
+  .rekomendasi-box {
+    background: rgba(0,180,216,0.06);
+    border: 1px solid rgba(0,180,216,0.15);
+    border-radius: 14px;
+    padding: 20px 24px;
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .rekomendasi-icon { font-size: 24px; flex-shrink: 0; }
+  .rekomendasi-text { font-size: 14px; color: var(--gray); line-height: 1.7; }
+  .rekomendasi-text strong { color: var(--white); }
+
+  /* DETAIL STATS */
+  .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .stat-card {
+    background: rgba(13,27,42,0.5);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-card-num { font-size: 28px; font-weight: 700; color: var(--teal); font-family: 'Playfair Display', serif; }
+  .stat-card-label { font-size: 12px; color: var(--gray); margin-top: 4px; }
+
+  /* FOOTER ACTIONS */
+  .footer-actions {
+    text-align: center;
+    padding-top: 8px;
+  }
+  .btn-print {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 32px;
+    background: rgba(26,46,68,0.8);
+    border: 1px solid rgba(0,180,216,0.2);
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 600;
+    color: var(--teal-light);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-print:hover { border-color: var(--teal); box-shadow: 0 0 20px rgba(0,180,216,0.15); }
+
+  .divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 8px 0; }
+
+  @media print {
+    .bg-layer, .confetti-container, .btn-print { display: none; }
+    body { background: white; color: black; }
+    .result-hero, .card-section { border-color: #ddd; background: white; }
+    .result-title, .section-title, .bar-label, .stat-card-num { color: #1a1a1a; }
+  }
+</style>
+</head>
+<body>
+<div class="bg-layer"></div>
+<div class="confetti-container" id="confetti"></div>
+
+<div class="page" id="pageContent">
+  <div style="text-align:center; padding: 100px 0; color: var(--gray);">
+    <div style="font-size:48px; margin-bottom:16px;">📊</div>
+    <p>Memuat hasil psikotest...</p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
+  const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const KATEGORI_CONFIG = {
+    'Sangat Baik': { emoji: '🏆', class: 'kategori-sangat-baik', color: '#4ECDC4', confetti: true },
+    'Baik':        { emoji: '⭐', class: 'kategori-baik',        color: '#00B4D8', confetti: true },
+    'Cukup':       { emoji: '📈', class: 'kategori-cukup',       color: '#F4A261', confetti: false },
+    'Kurang':      { emoji: '📉', class: 'kategori-kurang',      color: '#FF6B6B', confetti: false },
+  };
+
+  const BAR_ITEMS = [
+    { key: 'skor_logika',      label: 'Logika & Penalaran', color: '#00B4D8', max: 3 },
+    { key: 'skor_numerik',     label: 'Kemampuan Numerik',  color: '#C084FC', max: 3 },
+    { key: 'skor_verbal',      label: 'Kemampuan Verbal',   color: '#4ECDC4', max: 3 },
+    { key: 'skor_kepribadian', label: 'Kepribadian',        color: '#F4A261', max: 3 },
+  ];
+
+  async function loadHasil() {
+    const peserta = JSON.parse(sessionStorage.getItem('peserta'));
+    const sesi = JSON.parse(sessionStorage.getItem('sesi'));
+
+    if (!peserta) { window.location.href = 'login.html'; return; }
+
+    // Tunggu kalkulasi selesai
+    let hasil = null;
+    for (let i = 0; i < 5; i++) {
+      const { data } = await db.from('hasil').select('*').eq('peserta_id', peserta.id).single();
+      if (data) { hasil = data; break; }
+      await new Promise(r => setTimeout(r, 2000));
+    }
+
+    if (!hasil) {
+      document.getElementById('pageContent').innerHTML = `
+        <div style="text-align:center; padding:80px 0; color:var(--gray)">
+          <div style="font-size:48px; margin-bottom:16px">⚠️</div>
+          <h3 style="color:var(--white); margin-bottom:8px">Hasil belum tersedia</h3>
+          <p>Kalkulasi sedang diproses. Refresh halaman dalam beberapa detik.</p>
+        </div>`;
+      return;
+    }
+
+    // Ambil info sesi untuk durasi
+    const { data: sesiData } = await db.from('sesi_tes').select('*').eq('id', sesi?.id).single();
+
+    renderHasil(peserta, hasil, sesiData);
+  }
+
+  function renderHasil(peserta, hasil, sesiData) {
+    const cfg = KATEGORI_CONFIG[hasil.kategori_hasil] || KATEGORI_CONFIG['Cukup'];
+    const persentase = parseFloat(hasil.persentase) || 0;
+    const circumference = 440;
+    const offset = circumference - (persentase / 100) * circumference;
+
+    // Durasi pengerjaan
+    let durasi = '-';
+    if (sesiData?.waktu_mulai && sesiData?.waktu_selesai) {
+      const menit = Math.floor((new Date(sesiData.waktu_selesai) - new Date(sesiData.waktu_mulai)) / 60000);
+      durasi = `${menit} menit`;
+    }
+
+    const barHTML = BAR_ITEMS.map(item => {
+      const val = hasil[item.key] || 0;
+      const pct = Math.min((val / item.max) * 100, 100);
+      return `
+        <div class="bar-item">
+          <div class="bar-meta">
+            <div class="bar-label">
+              <div class="bar-label-dot" style="background:${item.color}"></div>
+              ${item.label}
+            </div>
+            <div class="bar-score" style="color:${item.color}">${val}/${item.max}</div>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" id="bar-${item.key}" style="background:${item.color}"></div>
+          </div>
+        </div>`;
+    }).join('');
+
+    document.getElementById('pageContent').innerHTML = `
+      <!-- HERO -->
+      <div class="result-hero">
+        <div class="result-badge">${cfg.emoji}</div>
+        <div class="result-name">${peserta.nama} · ${peserta.jabatan || 'Peserta'}</div>
+        <div class="result-title">Hasil Psikotest Anda</div>
+        <div class="result-subtitle">${new Date().toLocaleDateString('id-ID', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}</div>
+
+        <div class="big-score-ring">
+          <svg class="ring-svg" viewBox="0 0 160 160">
+            <circle class="ring-bg" cx="80" cy="80" r="70"/>
+            <circle class="ring-fill" id="ringFill" cx="80" cy="80" r="70" 
+              stroke="${cfg.color}"
+              style="stroke-dashoffset:${offset}"/>
+          </svg>
+          <div class="score-inside">
+            <div class="score-num" style="color:${cfg.color}">${Math.round(persentase)}%</div>
+            <div class="score-pct">Persentase</div>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; align-items:center; gap:12px">
+          <span class="result-kategori ${cfg.class}">${hasil.kategori_hasil}</span>
+          <span class="lulus-badge ${hasil.is_lulus ? 'lulus' : 'tidak'}">
+            ${hasil.is_lulus ? '✓ Memenuhi Standar' : '✗ Belum Memenuhi Standar'}
+          </span>
+        </div>
+      </div>
+
+      <!-- BREAKDOWN SKOR -->
+      <div class="section">
+        <div class="section-title">Rincian Skor per Kategori</div>
+        <div class="card-section">
+          ${barHTML}
+        </div>
+      </div>
+
+      <!-- STATISTIK -->
+      <div class="section">
+        <div class="section-title">Statistik Pengerjaan</div>
+        <div class="card-section">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-card-num">${hasil.skor_total}</div>
+              <div class="stat-card-label">Total Skor</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-num" style="color:var(--gold)">${Math.round(persentase)}%</div>
+              <div class="stat-card-label">Persentase Benar</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-num" style="color:var(--purple)">${durasi}</div>
+              <div class="stat-card-label">Durasi Pengerjaan</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-num" style="color:${hasil.is_lulus ? 'var(--success)' : 'var(--error)'}">
+                ${hasil.is_lulus ? 'LULUS' : 'TIDAK'}
+              </div>
+              <div class="stat-card-label">Status Kelulusan</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REKOMENDASI -->
+      <div class="section">
+        <div class="section-title">Rekomendasi HR</div>
+        <div class="rekomendasi-box">
+          <div class="rekomendasi-icon">💡</div>
+          <div class="rekomendasi-text">
+            <strong>Analisis Hasil:</strong><br>
+            ${hasil.rekomendasi || 'Hasil telah dicatat dan akan ditinjau oleh tim HR.'}
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- ACTIONS -->
+      <div class="footer-actions">
+        <button class="btn-print" onclick="window.print()">
+          🖨️ Cetak / Simpan PDF
+        </button>
+        <p style="margin-top:16px; font-size:12px; color:var(--gray)">
+          Hasil ini bersifat rahasia dan hanya untuk keperluan rekrutmen.<br>
+          Terima kasih telah mengikuti sesi psikotest.
+        </p>
+      </div>
+    `;
+
+    // Animate bars
+    setTimeout(() => {
+      BAR_ITEMS.forEach(item => {
+        const val = hasil[item.key] || 0;
+        const pct = Math.min((val / item.max) * 100, 100);
+        const el = document.getElementById('bar-' + item.key);
+        if (el) el.style.width = pct + '%';
+      });
+    }, 400);
+
+    // Animate ring
+    setTimeout(() => {
+      const ring = document.getElementById('ringFill');
+      if (ring) ring.style.strokeDashoffset = offset;
+    }, 600);
+
+    // Confetti for good results
+    if (cfg.confetti) spawnConfetti();
+  }
+
+  function spawnConfetti() {
+    const colors = ['#00B4D8','#4ECDC4','#F4A261','#90E0EF','#C084FC','#FFD166'];
+    const container = document.getElementById('confetti');
+    for (let i = 0; i < 60; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      el.style.animationDuration = (Math.random() * 3 + 2) + 's';
+      el.style.animationDelay = (Math.random() * 3) + 's';
+      el.style.width = el.style.height = (Math.random() * 8 + 6) + 'px';
+      container.appendChild(el);
+    }
+    setTimeout(() => container.innerHTML = '', 8000);
+  }
+
+  loadHasil();
+</script>
+</body>
+</html>

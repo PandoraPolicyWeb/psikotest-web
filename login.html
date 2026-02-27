@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Psikotest Karyawan — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #0D1B2A;
+    --navy-mid: #1A2E44;
+    --teal: #00B4D8;
+    --teal-light: #90E0EF;
+    --gold: #F4A261;
+    --white: #F8FAFC;
+    --gray: #94A3B8;
+    --error: #FF6B6B;
+    --success: #4ECDC4;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Animated background */
+  .bg-layer {
+    position: fixed; inset: 0; z-index: 0;
+    background: 
+      radial-gradient(ellipse 80% 60% at 20% 20%, rgba(0,180,216,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 80%, rgba(244,162,97,0.08) 0%, transparent 60%),
+      var(--navy);
+  }
+
+  .grid-lines {
+    position: fixed; inset: 0; z-index: 0;
+    background-image: 
+      linear-gradient(rgba(0,180,216,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,180,216,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: grid-drift 20s linear infinite;
+  }
+
+  @keyframes grid-drift {
+    0% { background-position: 0 0; }
+    100% { background-position: 60px 60px; }
+  }
+
+  .orb {
+    position: fixed; border-radius: 50%; filter: blur(80px); z-index: 0;
+    animation: float 8s ease-in-out infinite;
+  }
+  .orb-1 { width: 400px; height: 400px; background: rgba(0,180,216,0.08); top: -100px; left: -100px; animation-delay: 0s; }
+  .orb-2 { width: 300px; height: 300px; background: rgba(244,162,97,0.06); bottom: -100px; right: -50px; animation-delay: 4s; }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-30px) scale(1.05); }
+  }
+
+  /* Main container */
+  .container {
+    position: relative; z-index: 10;
+    width: 100%; max-width: 480px;
+    padding: 20px;
+    animation: slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes slide-up {
+    0% { opacity: 0; transform: translateY(40px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Header brand */
+  .brand {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .brand-icon {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-light));
+    border-radius: 18px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    margin-bottom: 16px;
+    box-shadow: 0 0 40px rgba(0,180,216,0.3);
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 40px rgba(0,180,216,0.3); }
+    50% { box-shadow: 0 0 60px rgba(0,180,216,0.5); }
+  }
+
+  .brand-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: var(--white);
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+
+  .brand-subtitle {
+    font-size: 13px;
+    color: var(--gray);
+    margin-top: 6px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* Card */
+  .card {
+    background: rgba(26, 46, 68, 0.6);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0,180,216,0.15);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 
+      0 0 0 1px rgba(255,255,255,0.03),
+      0 40px 80px rgba(0,0,0,0.4);
+  }
+
+  .card-header {
+    margin-bottom: 32px;
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+
+  .card-desc {
+    font-size: 14px;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  /* Form */
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--teal-light);
+    margin-bottom: 10px;
+  }
+
+  .input-wrapper {
+    position: relative;
+  }
+
+  .input-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: var(--gray);
+    transition: color 0.2s;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    background: rgba(13, 27, 42, 0.6);
+    border: 1px solid rgba(0,180,216,0.2);
+    border-radius: 12px;
+    padding: 16px 16px 16px 50px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--white);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    outline: none;
+    transition: all 0.3s;
+  }
+
+  input[type="text"]::placeholder {
+    color: rgba(148, 163, 184, 0.4);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 14px;
+  }
+
+  input[type="text"]:focus {
+    border-color: var(--teal);
+    background: rgba(13, 27, 42, 0.8);
+    box-shadow: 0 0 0 3px rgba(0,180,216,0.1), 0 0 20px rgba(0,180,216,0.1);
+  }
+
+  input[type="text"]:focus + .input-icon,
+  .input-wrapper:focus-within .input-icon {
+    color: var(--teal);
+  }
+
+  /* Info box */
+  .info-box {
+    background: rgba(0,180,216,0.08);
+    border: 1px solid rgba(0,180,216,0.2);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 28px;
+  }
+
+  .info-box-icon { font-size: 16px; margin-top: 1px; flex-shrink: 0; }
+  .info-box-text { font-size: 13px; color: var(--gray); line-height: 1.5; }
+  .info-box-text strong { color: var(--teal-light); }
+
+  /* Button */
+  .btn-login {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, var(--teal), #0096B7);
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--navy);
+    letter-spacing: 1px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .btn-login::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  .btn-login:hover::before { left: 100%; }
+  .btn-login:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,180,216,0.4); }
+  .btn-login:active { transform: translateY(0); }
+  .btn-login:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* Alert messages */
+  .alert {
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    animation: fade-in 0.3s ease;
+  }
+
+  @keyframes fade-in { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+  .alert.error { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.3); color: var(--error); display: flex; }
+  .alert.success { background: rgba(78,205,196,0.1); border: 1px solid rgba(78,205,196,0.3); color: var(--success); display: flex; }
+  .alert.loading { background: rgba(0,180,216,0.1); border: 1px solid rgba(0,180,216,0.3); color: var(--teal); display: flex; }
+
+  /* Divider */
+  .divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 32px 0; }
+
+  /* Footer info */
+  .session-info {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .session-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--gray);
+  }
+
+  .chip-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--teal);
+    box-shadow: 0 0 8px var(--teal);
+    animation: blink 2s ease-in-out infinite;
+  }
+
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  /* Copyright */
+  .copyright {
+    text-align: center;
+    margin-top: 28px;
+    font-size: 11px;
+    color: rgba(148, 163, 184, 0.4);
+    letter-spacing: 1px;
+  }
+
+  /* Loading spinner */
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(13,27,42,0.3);
+    border-top-color: var(--navy);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 500px) {
+    .card { padding: 28px 24px; }
+    .brand-title { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-layer"></div>
+<div class="grid-lines"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<div class="container">
+  <!-- Brand Header -->
+  <div class="brand">
+    <div class="brand-icon">🧠</div>
+    <div class="brand-title">Assessment Center</div>
+    <div class="brand-subtitle">Psikotest Karyawan</div>
+  </div>
+
+  <!-- Login Card -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Selamat Datang</div>
+      <div class="card-desc">Masukkan kode unik yang telah diberikan oleh HR untuk memulai sesi psikotest Anda.</div>
+    </div>
+
+    <!-- Alert Area -->
+    <div id="alertBox" class="alert"></div>
+
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label for="kodeInput">Kode Akses Peserta</label>
+        <div class="input-wrapper">
+          <input 
+            type="text" 
+            id="kodeInput"
+            placeholder="PSI-XXXXX"
+            maxlength="9"
+            autocomplete="off"
+            spellcheck="false"
+          >
+          <span class="input-icon" style="pointer-events:none">🔑</span>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <span class="info-box-icon">ℹ️</span>
+        <div class="info-box-text">
+          Kode peserta berbentuk <strong>PSI-XXXXX</strong>. Jika belum memiliki kode, hubungi tim <strong>HR/Rekrutmen</strong> Anda.
+        </div>
+      </div>
+
+      <button type="submit" class="btn-login" id="loginBtn">
+        <span id="btnText">Mulai Psikotest</span>
+        <span style="font-size:18px" id="btnIcon">→</span>
+        <div class="spinner" id="spinner" style="display:none"></div>
+      </button>
+    </form>
+
+    <hr class="divider">
+
+    <div class="session-info">
+      <div class="session-chip">
+        <div class="chip-dot"></div>
+        <span>Sesi Aman & Terenkripsi</span>
+      </div>
+      <div class="session-chip">
+        <div class="chip-dot" style="background:var(--gold); box-shadow: 0 0 8px var(--gold);"></div>
+        <span>Satu Kali Penggunaan</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="copyright">© 2024 Assessment Center · Dilindungi Kerahasiaan Data</div>
+</div>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // ============================================================
+  // KONFIGURASI SUPABASE - Ganti dengan kredensial Anda
+  // ============================================================
+  const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
+  const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+  
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Format input otomatis
+  const kodeInput = document.getElementById('kodeInput');
+  kodeInput.addEventListener('input', (e) => {
+    let val = e.target.value.toUpperCase().replace(/[^A-Z0-9\-]/g, '');
+    if (val.length > 3 && !val.startsWith('PSI-')) {
+      val = 'PSI-' + val.replace('PSI-', '').replace(/-/g, '');
+    }
+    if (val.length > 9) val = val.slice(0, 9);
+    e.target.value = val;
+  });
+
+  function showAlert(type, icon, message) {
+    const box = document.getElementById('alertBox');
+    box.className = `alert ${type}`;
+    box.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+  }
+
+  function hideAlert() {
+    const box = document.getElementById('alertBox');
+    box.className = 'alert';
+  }
+
+  function setLoading(isLoading) {
+    const btn = document.getElementById('loginBtn');
+    const btnText = document.getElementById('btnText');
+    const btnIcon = document.getElementById('btnIcon');
+    const spinner = document.getElementById('spinner');
+    
+    btn.disabled = isLoading;
+    btnText.textContent = isLoading ? 'Memverifikasi...' : 'Mulai Psikotest';
+    btnIcon.style.display = isLoading ? 'none' : 'inline';
+    spinner.style.display = isLoading ? 'block' : 'none';
+  }
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    const kode = kodeInput.value.trim().toUpperCase();
+
+    if (!kode || kode.length < 9) {
+      showAlert('error', '⚠️', 'Masukkan kode peserta yang valid (format: PSI-XXXXX)');
+      kodeInput.focus();
+      return;
+    }
+
+    hideAlert();
+    setLoading(true);
+
+    try {
+      // Cek kode peserta di database
+      const { data: peserta, error } = await db
+        .from('peserta')
+        .select('*')
+        .eq('kode_unik', kode)
+        .single();
+
+      if (error || !peserta) {
+        showAlert('error', '❌', 'Kode tidak ditemukan. Periksa kembali kode Anda.');
+        setLoading(false);
+        return;
+      }
+
+      if (peserta.status === 'selesai') {
+        showAlert('error', '🔒', `Kode ini sudah digunakan. Psikotest telah diselesaikan oleh ${peserta.nama}.`);
+        setLoading(false);
+        return;
+      }
+
+      if (peserta.status === 'sedang') {
+        // Lanjutkan sesi yang ada
+        showAlert('loading', '⏳', 'Melanjutkan sesi sebelumnya...');
+        sessionStorage.setItem('peserta', JSON.stringify(peserta));
+        setTimeout(() => { window.location.href = 'soal.html'; }, 1000);
+        return;
+      }
+
+      // Buat sesi baru
+      const waktuMulai = new Date();
+      const batasWaktu = new Date(waktuMulai.getTime() + 60 * 60 * 1000); // 60 menit
+
+      const { data: sesi, error: sesiError } = await db
+        .from('sesi_tes')
+        .insert({
+          peserta_id: peserta.id,
+          waktu_mulai: waktuMulai.toISOString(),
+          batas_waktu: batasWaktu.toISOString(),
+          durasi_menit: 60
+        })
+        .select()
+        .single();
+
+      if (sesiError) throw sesiError;
+
+      // Update status peserta
+      await db.from('peserta').update({ status: 'sedang', sesi_mulai: waktuMulai.toISOString() }).eq('id', peserta.id);
+
+      // Simpan ke session storage
+      sessionStorage.setItem('peserta', JSON.stringify({ ...peserta, status: 'sedang' }));
+      sessionStorage.setItem('sesi', JSON.stringify(sesi));
+
+      showAlert('success', '✅', `Selamat datang, ${peserta.nama}! Mengarahkan ke soal...`);
+      setTimeout(() => { window.location.href = 'soal.html'; }, 1500);
+
+    } catch (err) {
+      console.error(err);
+      showAlert('error', '⚠️', 'Terjadi kesalahan koneksi. Coba lagi.');
+      setLoading(false);
+    }
+  }
+</script>
+</body>
+</html>
